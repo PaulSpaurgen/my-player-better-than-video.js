@@ -45,9 +45,9 @@ Both metrics are critical when comparing players on real systems: they correlate
 
 Drop new captures into `public/researchData/` with the same field names. Reload the app to compare new sessions. Keep the 200 ms cadence for consistent time axes.
 
-### Screenshots (optional)
+### Live Demo Link
 
-Paste or commit screenshots here for quick reference:
+[deployed link:](https://my-player-better-than-video-js.vercel.app/)
 
 - GPU GT Usage Over Time – MyVideoPlayer (red) vs Video.js (blue)
 - GPU D3D Usage Over Time – MyVideoPlayer (red) vs Video.js (blue)
