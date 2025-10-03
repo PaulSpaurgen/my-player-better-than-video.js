@@ -1,73 +1,56 @@
-# React + TypeScript + Vite
+## Graph Plotter – MyVideoPlayer vs Video.js GPU Usage
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This repo visualizes GPU usage over time for two players using Chart.js and your provided datasets. It renders two side‑by‑side line charts (scrollable width) for a like‑for‑like comparison:
 
-Currently, two official plugins are available:
+- GPU GT Usage (%) vs Time (ms)
+- GPU D3D Usage (%) vs Time (ms)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Why MyVideoPlayer performs better than Video.js
 
-## React Compiler
+- Lower GT usage spikes: MyVideoPlayer shows fewer and shorter GT spikes, indicating steadier load on the graphics cores during playback.
+- Lower D3D overhead: MyVideoPlayer generally exhibits lower Direct3D (presentation/render) usage, implying less rendering overhead and smoother frame delivery.
+- More stable baseline: Flatter usage lines translate to fewer jank risks and better power characteristics over time.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+These conclusions come from plotting the exact same timeline for both players using the attached datasets:
 
-## Expanding the ESLint configuration
+- `public/researchData/myVideoPlayerPerformance.json`
+- `public/researchData/videoJsPerformance.json`
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Each dataset is mapped to time‑series points where `time = index * 200` ms, so ~200 samples ≈ 40 seconds. We plot both series on the same axes for an apples‑to‑apples comparison.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### How to run
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Then open the printed local URL (e.g., `http://localhost:5173`). The charts are rendered at `200vw` with horizontal scroll so you can see the full timeline.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### What the charts show
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- GPU GT Usage: Utilization of GPU graphics cores. Lower values/spikes suggest more efficient use of GPU compute for video work.
+- GPU D3D Usage: Direct3D rendering/presentation work. Lower values indicate less overhead pushing frames to the screen.
+
+Both metrics are critical when comparing players on real systems: they correlate with smooth playback, device thermals, and battery life.
+
+### Data and methodology
+
+- Source data: the two JSON files above under `public/researchData/`.
+- Transformation: each record is mapped to `{ time: index*200, GPU_GT_Usage_Percentage }` and `{ time: index*200, GPU_D3D_Usage_Percentage }`.
+- Rendering: Chart.js line charts with tooltips enabled and non‑intersect interaction for easier inspection.
+- Layout: Each chart is inside a scrollable container (`overflow-x: auto`) sized to `200vw` for comfortable scanning of ~200 samples.
+
+### Replace with your own runs
+
+Drop new captures into `public/researchData/` with the same field names. Reload the app to compare new sessions. Keep the 200 ms cadence for consistent time axes.
+
+### Screenshots (optional)
+
+Paste or commit screenshots here for quick reference:
+
+- GPU GT Usage Over Time – MyVideoPlayer (red) vs Video.js (blue)
+- GPU D3D Usage Over Time – MyVideoPlayer (red) vs Video.js (blue)
+
+> Note: Colors match the app: MyVideoPlayer = red, Video.js = blue.
+
